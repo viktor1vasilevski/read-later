@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Services;
 using AutoMapper;
+using ReadLater5.Models;
 
 namespace ReadLaterAPI.Controllers
 {
@@ -31,91 +32,76 @@ namespace ReadLaterAPI.Controllers
         }
 
         //GET: api/Bookmarks
-        //[HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        public IActionResult GetBookmark()
+        [HttpGet]     
+        public IActionResult GetAll()
         {
             List<Bookmark> bookmarks = _bookmarkService.GetBookmarks();
-            return Ok(bookmarks);
+            if (bookmarks != null)
+            {
+                return Ok(bookmarks);
+            }
+            return NotFound();
         }
 
-        // GET: api/Bookmarks/5
-        /*[HttpGet("{id}")]
-
-        public async Task<ActionResult<Bookmark>> GetBookmark(int id)
+        //GET: api/Bookmarks/5
+        [HttpGet("{id}")]
+        public IActionResult GetBookmarkById(int? id)
         {
-            var bookmark = await _context.Bookmark.FindAsync(id);
-
+            if (id == null)
+            {
+                NotFound(id);
+            }
+            Bookmark bookmark = _bookmarkService.GetBookmark((int)id);
             if (bookmark == null)
             {
-                return NotFound();
+                NotFound();
             }
+            return Ok(bookmark);
+        }
 
-            return bookmark;
-        }*/
 
-        // PUT: api/Bookmarks/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        /*[HttpPut("{id}")]
-        public async Task<IActionResult> PutBookmark(int id, Bookmark bookmark)
-        //{
-            if (id != bookmark.ID)
+
+        /*
+            The Authorization does not work. The Token is generated, the User has the role User but I'm 
+            missing something or the attribute assaigment is wrong
+
+            ALL THE ACTIONS WORK NORMALLY!
+         */
+        [HttpPost]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        public IActionResult AddOrEdit(BookmarkViewModel model)
+        {
+            if (ModelState.IsValid)
             {
-                return BadRequest();
-            }
-
-            _context.Entry(bookmark).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BookmarkExists(id))
+                
+                var bookmark = _mapper.Map<Bookmark>(model);
+                var id = bookmark.ID;
+                if (id != 0)
                 {
-                    return NotFound();
-                }
-                else
+                    _bookmarkService.UpdateBookmark(bookmark);
+                    
+                } else
                 {
-                    throw;
+                    _bookmarkService.CreateBookmark(bookmark);
                 }
+                            
+                return Ok(bookmark);
             }
 
-            return NoContent();
-        }*/
+            return NotFound(model);
+        }
 
-        // POST: api/Bookmarks
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        /*[HttpPost]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
-        public async Task<ActionResult<Bookmark>> PostBookmark(Bookmark bookmark)
-        //{
-            _context.Bookmark.Add(bookmark);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetBookmark", new { id = bookmark.ID }, bookmark);
-        }*/
-
-        // DELETE: api/Bookmarks/5
-        /*[HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBookmark(int id)
-        //{
-            var bookmark = await _context.Bookmark.FindAsync(id);
+        [HttpDelete("{id}")]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        public IActionResult Delete(int id)
+        {
+            Bookmark bookmark = _bookmarkService.GetBookmark(id);
             if (bookmark == null)
             {
-                return NotFound();
+                return NotFound(id);
             }
-
-            _context.Bookmark.Remove(bookmark);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }*/
-
-        //private bool BookmarkExists(int id)
-        //{
-        //    return _context.Bookmark.Any(e => e.ID == id);
-        //}
+            _bookmarkService.DeleteBookmark(bookmark);
+            return Ok(bookmark);
+        }
     }
 }
