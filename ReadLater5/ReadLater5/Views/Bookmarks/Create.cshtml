@@ -14,13 +14,23 @@
 
 <div class="form-horizontal">
     <h4>Bookmark</h4>
-    <a class="btn btn-info" asp-controller="Categories" asp-action="Create">CREATE NEW CATEGORY</a>
+    <a id="create-category" class="btn btn-info" @* asp-controller="Categories" asp-action="Create"*@>CREATE NEW CATEGORY</a>
+    <button class="btn btn-info" id="select-dropdown-category">Select Dropdown Category</button>
     <hr />
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
     <div class="form-group">
-        @Html.LabelFor(model => model.ListOfCategories, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.DropDownListFor(m => m.CategoryId, Model.ListOfCategories, "Select Category")
+        <div id="category-name-input" class="col-md-10">
+            @Html.LabelFor(model => model.Category.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.EditorFor(model => model.Category.Name, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Category.Name, "", new { @class = "text-danger" })
+        </div>
+
+        <div id="select-category" class="col-md-10">
+            @Html.LabelFor(model => model.ListOfCategories, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.DropDownListFor(m => m.CategoryId, Model.ListOfCategories, "Select Category", htmlAttributes: new { @class = "my-class" })
+            @*<select id="viktor" asp-for="ListOfCategories" asp-items="@Model.ListOfCategories">
+                <option value="" selected="selected">Select Category</option>
+            </select>*@
             @Html.ValidationMessageFor(model => model.ListOfCategories, "", new { @class = "text-danger" })
         </div>
         @Html.LabelFor(model => model.URL, htmlAttributes: new { @class = "control-label col-md-2" })
@@ -50,3 +60,40 @@
 <div>
     @Html.ActionLink("Back to List", "Index")
 </div>
+
+<script>
+
+    $(document).ready(function () {
+        $('#category-name-input').hide();
+        $('#select-dropdown-category').hide();
+    })
+
+    $(document).on('click', '#create-category', function () {
+        $('#category-name-input').show();
+        $('#select-category').hide();
+        $('#create-category').hide();
+        $('#select-dropdown-category').show();
+    });
+
+    $('.my-class').on('change', function () {
+        
+        if ($(this).val() != "") {  
+            $('#create-category').hide();
+        } else {
+            $('#create-category').show();
+        }
+    })
+
+    $('#select-dropdown-category').on('click', function (e) {
+        e.preventDefault();
+        $('#select-dropdown-category').hide();
+        $('#create-category').show();
+        $('#select-category').show();
+        $('#category-name-input').hide();
+    })
+
+    
+
+
+
+</script>

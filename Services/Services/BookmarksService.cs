@@ -32,8 +32,7 @@ namespace Services
 
         public List<Bookmark> GetBookmarks()
         {
-            var ff = _ReadLaterDataContext.Bookmark.Include(x => x.Category).ToList();
-            return ff;
+            return _ReadLaterDataContext.Bookmark.Include(x => x.Category).ToList();
         }
 
         public Bookmark GetBookmark(int Id)

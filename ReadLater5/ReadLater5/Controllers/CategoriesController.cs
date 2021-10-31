@@ -12,9 +12,11 @@ namespace ReadLater5.Controllers
     public class CategoriesController : Controller
     {
         ICategoryService _categoryService;
-        public CategoriesController(ICategoryService categoryService)
+        IBookmarkService _bookmarkService;
+        public CategoriesController(ICategoryService categoryService, IBookmarkService bookmarkService)
         {
             _categoryService = categoryService;
+            _bookmarkService = bookmarkService;
         }
         // GET: Categories
         public IActionResult Index()
@@ -111,6 +113,11 @@ namespace ReadLater5.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
+            var bookmarks = _bookmarkService.GetBookmarks().Where(x => x.CategoryId == id);
+            foreach (var bookmark in bookmarks)
+            {
+                bookmark.CategoryId = null;
+            }
             Category category = _categoryService.GetCategory(id);
             _categoryService.DeleteCategory(category);
             return RedirectToAction("Index");

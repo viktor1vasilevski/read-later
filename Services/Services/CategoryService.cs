@@ -45,7 +45,9 @@ namespace Services
         }
 
         public void DeleteCategory(Category category)
-        {
+        {         
+
+
             _ReadLaterDataContext.Categories.Remove(category);
             _ReadLaterDataContext.SaveChanges();
         }

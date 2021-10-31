@@ -7,29 +7,41 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Data;
 using Entity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Services;
+using AutoMapper;
 
 namespace ReadLaterAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class BookmarksController : ControllerBase
     {
-        private readonly ReadLaterDataContext _context;
-
-        public BookmarksController(ReadLaterDataContext context)
+        IBookmarkService _bookmarkService;
+        ICategoryService _categoryService;
+        IMapper _mapper;
+        public BookmarksController(IBookmarkService bookmarkService, ICategoryService categoryService, IMapper mapper)
         {
-            _context = context;
+            _bookmarkService = bookmarkService;
+            _categoryService = categoryService;
+            _mapper = mapper;
         }
 
-        // GET: api/Bookmarks
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Bookmark>>> GetBookmark()
+        //GET: api/Bookmarks
+        //[HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        public IActionResult GetBookmark()
         {
-            return await _context.Bookmark.ToListAsync();
+            List<Bookmark> bookmarks = _bookmarkService.GetBookmarks();
+            return Ok(bookmarks);
         }
 
         // GET: api/Bookmarks/5
-        [HttpGet("{id}")]
+        /*[HttpGet("{id}")]
+
         public async Task<ActionResult<Bookmark>> GetBookmark(int id)
         {
             var bookmark = await _context.Bookmark.FindAsync(id);
@@ -40,13 +52,13 @@ namespace ReadLaterAPI.Controllers
             }
 
             return bookmark;
-        }
+        }*/
 
         // PUT: api/Bookmarks/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        /*[HttpPut("{id}")]
         public async Task<IActionResult> PutBookmark(int id, Bookmark bookmark)
-        {
+        //{
             if (id != bookmark.ID)
             {
                 return BadRequest();
@@ -71,23 +83,24 @@ namespace ReadLaterAPI.Controllers
             }
 
             return NoContent();
-        }
+        }*/
 
         // POST: api/Bookmarks
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        /*[HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<Bookmark>> PostBookmark(Bookmark bookmark)
-        {
+        //{
             _context.Bookmark.Add(bookmark);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetBookmark", new { id = bookmark.ID }, bookmark);
-        }
+        }*/
 
         // DELETE: api/Bookmarks/5
-        [HttpDelete("{id}")]
+        /*[HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBookmark(int id)
-        {
+        //{
             var bookmark = await _context.Bookmark.FindAsync(id);
             if (bookmark == null)
             {
@@ -98,11 +111,11 @@ namespace ReadLaterAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
+        }*/
 
-        private bool BookmarkExists(int id)
-        {
-            return _context.Bookmark.Any(e => e.ID == id);
-        }
+        //private bool BookmarkExists(int id)
+        //{
+        //    return _context.Bookmark.Any(e => e.ID == id);
+        //}
     }
 }

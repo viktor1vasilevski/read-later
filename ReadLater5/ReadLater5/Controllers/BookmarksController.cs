@@ -73,6 +73,20 @@ namespace ReadLater5.Controllers
         {
             if (ModelState.IsValid)
             {
+                /*
+                  there is a problem when we want to 
+                  create Bookmark from the dropdown menu.
+                  It takes the Id from the selected Category as it should, but
+                  in the Bookmark.Category there is always
+                  ID = 0 and Name = null and in the DB we will have new record
+                  in the Categories table with the Name = null. 
+                  The Bookmark for the CategoryId it will have the Id from the nullable Category/empty Category.
+
+                  The Problem is in the Form. When we comment the part where we have the input field
+                  for the model.Category.Name it fine.
+                  In the Post Create method, for the model, the whole class Category is null in the Bookmark
+                                                 
+                 */
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var bookmark = _mapper.Map<Bookmark>(model);
                 if (userId != null)
